@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎥 Kamera Görüş Açısı Hesaplayıcı</title>
+    <title>🎥 Gelişmiş Kamera Görüş Açısı Hesaplayıcı</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             padding: 40px;
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
             animation: slideIn 0.8s ease-out;
         }
@@ -57,6 +57,32 @@
             padding-bottom: 20px;
         }
 
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 15px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
         .instructions {
             background: #f8f9fa;
             border-left: 4px solid #667eea;
@@ -78,6 +104,14 @@
         .instructions li {
             margin-bottom: 8px;
             color: #555;
+        }
+
+        .input-section {
+            display: none;
+        }
+
+        .input-section.active {
+            display: block;
         }
 
         .input-group {
@@ -228,6 +262,12 @@
             box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
         }
 
+        .help-text {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
@@ -242,37 +282,85 @@
                 align-items: flex-start;
                 gap: 5px;
             }
+
+            .mode-selector {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎥 Kamera Görüş Açısı Hesaplayıcı</h1>
-        <div class="subtitle">Kamera görüş açınızı hassas bir şekilde ölçün</div>
+        <h1>🎥 Gelişmiş Kamera Görüş Açısı Hesaplayıcı</h1>
+        <div class="subtitle">Dik ve çapraz bakış açılarını hassas bir şekilde ölçün</div>
         
-        <div class="instructions">
-            <h3>📝 Ölçüm Talimatları:</h3>
-            <ol>
-                <li>Sol ve sağ görüş sınırlarına birer nesne koyun</li>
-                <li>Bu iki nesne arasındaki mesafeyi ölçün</li>
-                <li>Kameradan bu iki nesnenin orta noktasına olan mesafeyi ölçün</li>
-            </ol>
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('normal')">📐 Dik Bakış</button>
+            <button class="mode-btn" onclick="switchMode('angled')">📏 Çapraz Bakış</button>
         </div>
 
-        <form id="calculatorForm">
-            <div class="input-group">
-                <label for="width">🔍 Sol-sağ sınır nesneler arası mesafe (cm):</label>
-                <input type="number" id="width" step="0.1" required placeholder="Örnek: 50.5">
+        <!-- Normal (Dik) Mod -->
+        <div id="normal-section" class="input-section active">
+            <div class="instructions">
+                <h3>📝 Dik Bakış Ölçüm Talimatları:</h3>
+                <ol>
+                    <li>Kamerayı duvara dik şekilde konumlandırın</li>
+                    <li>Sol ve sağ görüş sınırlarına birer nesne koyun</li>
+                    <li>Bu iki nesne arasındaki mesafeyi ölçün</li>
+                    <li>Kameradan duvara olan mesafeyi ölçün</li>
+                </ol>
             </div>
 
-            <div class="input-group">
-                <label for="distance">📏 Kameradan orta noktaya mesafe (cm):</label>
-                <input type="number" id="distance" step="0.1" required placeholder="Örnek: 30.0">
+            <form id="normalForm">
+                <div class="input-group">
+                    <label for="normalWidth">🔍 Görüş genişliği (cm):</label>
+                    <input type="number" id="normalWidth" step="0.1" required placeholder="Örnek: 50.5">
+                </div>
+
+                <div class="input-group">
+                    <label for="normalDistance">📏 Kameradan duvara mesafe (cm):</label>
+                    <input type="number" id="normalDistance" step="0.1" required placeholder="Örnek: 30.0">
+                </div>
+
+                <button type="submit" class="btn">🧮 Hesapla</button>
+            </form>
+        </div>
+
+        <!-- Çapraz Mod -->
+        <div id="angled-section" class="input-section">
+            <div class="instructions">
+                <h3>📝 Çapraz Bakış Ölçüm Talimatları:</h3>
+                <ol>
+                    <li>Kameradan duvara olan EN KISA mesafeyi ölçün (dik mesafe)</li>
+                    <li>Kameradan odaklandığı noktaya olan mesafeyi ölçün</li>
+                    <li>Sol ve sağ görüş sınırları arasındaki mesafeyi ölçün</li>
+                </ol>
             </div>
 
-            <button type="submit" class="btn">🧮 Hesapla</button>
-            <button type="button" class="btn reset-btn" onclick="resetForm()">🔄 Temizle</button>
-        </form>
+            <form id="angledForm">
+                <div class="input-group">
+                    <label for="perpDistance">📐 Kameradan duvara dik mesafe (cm):</label>
+                    <input type="number" id="perpDistance" step="0.1" required placeholder="Örnek: 112">
+                    <div class="help-text">En kısa mesafe - kameradan duvara dik çizgi</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="actualDistance">📏 Kameradan odak noktasına mesafe (cm):</label>
+                    <input type="number" id="actualDistance" step="0.1" required placeholder="Örnek: 120">
+                    <div class="help-text">Kameranın baktığı noktaya olan gerçek mesafe</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="angledWidth">🔍 Görüş genişliği (cm):</label>
+                    <input type="number" id="angledWidth" step="0.1" required placeholder="Örnek: 515">
+                    <div class="help-text">Sol ve sağ sınır nesneler arası mesafe</div>
+                </div>
+
+                <button type="submit" class="btn">🧮 Hesapla</button>
+            </form>
+        </div>
+
+        <button type="button" class="btn reset-btn" onclick="resetForm()">🔄 Temizle</button>
 
         <div class="error" id="errorMessage"></div>
 
@@ -294,76 +382,156 @@
             
             <div class="detail-info">
                 <h4>📈 Detay Bilgi:</h4>
-                <div>Yarı görüş genişliği: <span id="halfWidth">-</span> cm</div>
-                <div>Yarı açı: <span id="halfAngle">-</span>°</div>
+                <div id="detailContent">-</div>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+        let currentMode = 'normal';
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Butonları güncelle
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Bölümleri göster/gizle
+            document.querySelectorAll('.input-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(mode + '-section').classList.add('active');
+            
+            // Sonuçları temizle
+            resetForm();
+        }
+
+        document.getElementById('normalForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            hesaplaGorusAcisi();
+            hesaplaNormalAci();
         });
 
-        function hesaplaGorusAcisi() {
-            // Hata mesajını gizle
+        document.getElementById('angledForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hesaplaCaprazAci();
+        });
+
+        function hesaplaNormalAci() {
             document.getElementById('errorMessage').style.display = 'none';
             
             try {
-                // Değerleri al
-                const gorusGenisligi = parseFloat(document.getElementById('width').value);
-                const kameraUzaklik = parseFloat(document.getElementById('distance').value);
+                const gorusGenisligi = parseFloat(document.getElementById('normalWidth').value);
+                const kameraUzaklik = parseFloat(document.getElementById('normalDistance').value);
                 
-                // Validasyon
                 if (isNaN(gorusGenisligi) || isNaN(kameraUzaklik)) {
                     throw new Error('Lütfen geçerli sayılar girin!');
                 }
                 
-                if (kameraUzaklik <= 0) {
-                    throw new Error('Uzaklık sıfır veya negatif olamaz!');
+                if (kameraUzaklik <= 0 || gorusGenisligi <= 0) {
+                    throw new Error('Değerler sıfır veya negatif olamaz!');
                 }
                 
-                if (gorusGenisligi <= 0) {
-                    throw new Error('Görüş genişliği sıfır veya negatif olamaz!');
-                }
-                
-                // Hesaplama
+                // Normal hesaplama
                 const yarimAciRadyan = Math.atan((gorusGenisligi / 2) / kameraUzaklik);
                 const tamAciDerece = 2 * (yarimAciRadyan * 180 / Math.PI);
-                const fark = Math.abs(130 - tamAciDerece);
                 
-                // Sonuçları güncelle
-                document.getElementById('calculatedAngle').textContent = tamAciDerece.toFixed(1) + '°';
-                document.getElementById('difference').textContent = fark.toFixed(1) + '°';
-                document.getElementById('halfWidth').textContent = (gorusGenisligi / 2).toFixed(1);
-                document.getElementById('halfAngle').textContent = (yarimAciRadyan * 180 / Math.PI).toFixed(1);
-                
-                // Durum değerlendirmesi
-                const statusElement = document.getElementById('status');
-                if (fark <= 5) {
-                    statusElement.textContent = '✅ Mükemmel! Ölçüm doğru';
-                    statusElement.className = 'status excellent';
-                } else if (fark <= 10) {
-                    statusElement.textContent = '✅ İyi! Kabul edilebilir aralık';
-                    statusElement.className = 'status good';
-                } else {
-                    statusElement.textContent = '⚠️ Ölçümü kontrol et';
-                    statusElement.className = 'status warning';
-                }
-                
-                // Sonuç bölümünü göster
-                document.getElementById('results').style.display = 'block';
-                
-                // Sonuç bölümüne kaydır
-                document.getElementById('results').scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'nearest'
+                gosterSonuc(tamAciDerece, {
+                    yarimGenislik: gorusGenisligi / 2,
+                    yarimAci: yarimAciRadyan * 180 / Math.PI,
+                    mesafe: kameraUzaklik
                 });
                 
             } catch (error) {
                 showError(error.message);
             }
+        }
+
+        function hesaplaCaprazAci() {
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            try {
+                const dikMesafe = parseFloat(document.getElementById('perpDistance').value);
+                const gercekMesafe = parseFloat(document.getElementById('actualDistance').value);
+                const gorusGenisligi = parseFloat(document.getElementById('angledWidth').value);
+                
+                if (isNaN(dikMesafe) || isNaN(gercekMesafe) || isNaN(gorusGenisligi)) {
+                    throw new Error('Lütfen geçerli sayılar girin!');
+                }
+                
+                if (dikMesafe <= 0 || gercekMesafe <= 0 || gorusGenisligi <= 0) {
+                    throw new Error('Değerler sıfır veya negatif olamaz!');
+                }
+                
+                if (dikMesafe > gercekMesafe) {
+                    throw new Error('Dik mesafe, gerçek mesafeden büyük olamaz!');
+                }
+                
+                // Çapraz açı hesaplama
+                // 1. Kameranın duvara bakış açısını bul
+                const bakisAcisiRad = Math.acos(dikMesafe / gercekMesafe);
+                
+                // 2. Görüş genişliğini düzelt (perspektif düzeltmesi)
+                const duzeltilmisGenislik = gorusGenisligi * Math.cos(bakisAcisiRad);
+                
+                // 3. Gerçek görüş açısını hesapla
+                const yarimAciRad = Math.atan((duzeltilmisGenislik / 2) / dikMesafe);
+                const tamAciDerece = 2 * (yarimAciRad * 180 / Math.PI);
+                
+                gosterSonuc(tamAciDerece, {
+                    dikMesafe: dikMesafe,
+                    gercekMesafe: gercekMesafe,
+                    bakisAcisi: bakisAcisiRad * 180 / Math.PI,
+                    duzeltilmisGenislik: duzeltilmisGenislik,
+                    originalGenislik: gorusGenisligi
+                });
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function gosterSonuc(tamAciDerece, detaylar) {
+            const fark = Math.abs(130 - tamAciDerece);
+            
+            document.getElementById('calculatedAngle').textContent = tamAciDerece.toFixed(1) + '°';
+            document.getElementById('difference').textContent = fark.toFixed(1) + '°';
+            
+            // Detay bilgileri güncelle
+            let detayHTML = '';
+            if (currentMode === 'normal') {
+                detayHTML = `
+                    <div>Yarı görüş genişliği: ${detaylar.yarimGenislik.toFixed(1)} cm</div>
+                    <div>Yarı açı: ${detaylar.yarimAci.toFixed(1)}°</div>
+                    <div>Kamera mesafesi: ${detaylar.mesafe.toFixed(1)} cm</div>
+                `;
+            } else {
+                detayHTML = `
+                    <div>Dik mesafe: ${detaylar.dikMesafe.toFixed(1)} cm</div>
+                    <div>Gerçek mesafe: ${detaylar.gercekMesafe.toFixed(1)} cm</div>
+                    <div>Kamera bakış açısı: ${detaylar.bakisAcisi.toFixed(1)}°</div>
+                    <div>Orijinal görüş genişliği: ${detaylar.originalGenislik.toFixed(1)} cm</div>
+                    <div>Düzeltilmiş görüş genişliği: ${detaylar.duzeltilmisGenislik.toFixed(1)} cm</div>
+                `;
+            }
+            document.getElementById('detailContent').innerHTML = detayHTML;
+            
+            // Durum değerlendirmesi
+            const statusElement = document.getElementById('status');
+            if (fark <= 5) {
+                statusElement.textContent = '✅ Mükemmel! Ölçüm doğru';
+                statusElement.className = 'status excellent';
+            } else if (fark <= 10) {
+                statusElement.textContent = '✅ İyi! Kabul edilebilir aralık';
+                statusElement.className = 'status good';
+            } else {
+                statusElement.textContent = '⚠️ Ölçümü kontrol et';
+                statusElement.className = 'status warning';
+            }
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'nearest'
+            });
         }
         
         function showError(message) {
@@ -374,18 +542,11 @@
         }
         
         function resetForm() {
-            document.getElementById('calculatorForm').reset();
+            document.getElementById('normalForm').reset();
+            document.getElementById('angledForm').reset();
             document.getElementById('results').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
         }
-        
-        // Enter tuşu ile hesaplama
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT') {
-                e.preventDefault();
-                hesaplaGorusAcisi();
-            }
-        });
     </script>
 </body>
 </html>
