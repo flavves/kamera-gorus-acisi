@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎥 Kamera Görüş Açısı Hesaplayıcı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .result-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .status.excellent {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.good {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status.warning {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .detail-info {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-info h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Kamera Görüş Açısı Hesaplayıcı</h1>
+        <div class="subtitle">Kamera görüş açınızı hassas bir şekilde ölçün</div>
+        
+        <div class="instructions">
+            <h3>📝 Ölçüm Talimatları:</h3>
+            <ol>
+                <li>Sol ve sağ görüş sınırlarına birer nesne koyun</li>
+                <li>Bu iki nesne arasındaki mesafeyi ölçün</li>
+                <li>Kameradan bu iki nesnenin orta noktasına olan mesafeyi ölçün</li>
+            </ol>
+        </div>
+
+        <form id="calculatorForm">
+            <div class="input-group">
+                <label for="width">🔍 Sol-sağ sınır nesneler arası mesafe (cm):</label>
+                <input type="number" id="width" step="0.1" required placeholder="Örnek: 50.5">
+            </div>
+
+            <div class="input-group">
+                <label for="distance">📏 Kameradan orta noktaya mesafe (cm):</label>
+                <input type="number" id="distance" step="0.1" required placeholder="Örnek: 30.0">
+            </div>
+
+            <button type="submit" class="btn">🧮 Hesapla</button>
+            <button type="button" class="btn reset-btn" onclick="resetForm()">🔄 Temizle</button>
+        </form>
+
+        <div class="error" id="errorMessage"></div>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <span class="result-label">Hesaplanan Görüş Açısı:</span>
+                <span class="result-value" id="calculatedAngle">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Kamera Spesifikasyonu:</span>
+                <span class="result-value">130.0°</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Fark:</span>
+                <span class="result-value" id="difference">-</span>
+            </div>
+            
+            <div class="status" id="status"></div>
+            
+            <div class="detail-info">
+                <h4>📈 Detay Bilgi:</h4>
+                <div>Yarı görüş genişliği: <span id="halfWidth">-</span> cm</div>
+                <div>Yarı açı: <span id="halfAngle">-</span>°</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hesaplaGorusAcisi();
+        });
+
+        function hesaplaGorusAcisi() {
+            // Hata mesajını gizle
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            try {
+                // Değerleri al
+                const gorusGenisligi = parseFloat(document.getElementById('width').value);
+                const kameraUzaklik = parseFloat(document.getElementById('distance').value);
+                
+                // Validasyon
+                if (isNaN(gorusGenisligi) || isNaN(kameraUzaklik)) {
+                    throw new Error('Lütfen geçerli sayılar girin!');
+                }
+                
+                if (kameraUzaklik <= 0) {
+                    throw new Error('Uzaklık sıfır veya negatif olamaz!');
+                }
+                
+                if (gorusGenisligi <= 0) {
+                    throw new Error('Görüş genişliği sıfır veya negatif olamaz!');
+                }
+                
+                // Hesaplama
+                const yarimAciRadyan = Math.atan((gorusGenisligi / 2) / kameraUzaklik);
+                const tamAciDerece = 2 * (yarimAciRadyan * 180 / Math.PI);
+                const fark = Math.abs(130 - tamAciDerece);
+                
+                // Sonuçları güncelle
+                document.getElementById('calculatedAngle').textContent = tamAciDerece.toFixed(1) + '°';
+                document.getElementById('difference').textContent = fark.toFixed(1) + '°';
+                document.getElementById('halfWidth').textContent = (gorusGenisligi / 2).toFixed(1);
+                document.getElementById('halfAngle').textContent = (yarimAciRadyan * 180 / Math.PI).toFixed(1);
+                
+                // Durum değerlendirmesi
+                const statusElement = document.getElementById('status');
+                if (fark <= 5) {
+                    statusElement.textContent = '✅ Mükemmel! Ölçüm doğru';
+                    statusElement.className = 'status excellent';
+                } else if (fark <= 10) {
+                    statusElement.textContent = '✅ İyi! Kabul edilebilir aralık';
+                    statusElement.className = 'status good';
+                } else {
+                    statusElement.textContent = '⚠️ Ölçümü kontrol et';
+                    statusElement.className = 'status warning';
+                }
+                
+                // Sonuç bölümünü göster
+                document.getElementById('results').style.display = 'block';
+                
+                // Sonuç bölümüne kaydır
+                document.getElementById('results').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = '❌ Hata: ' + message;
+            errorElement.style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function resetForm() {
+            document.getElementById('calculatorForm').reset();
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // Enter tuşu ile hesaplama
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT') {
+                e.preventDefault();
+                hesaplaGorusAcisi();
+            }
+        });
+    </script>
+</body>
+</html>
