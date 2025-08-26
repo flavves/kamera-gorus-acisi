@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎥 Gelişmiş Kamera Görüş Açısı Hesaplayıcı</title>
+    <!-- MathJax for rendering formulas -->
+    <script>
+        window.MathJax = { tex: {inlineMath: [['$','$'], ['\\(','\\)']]}, svg: {fontCache: 'global'} };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
     <style>
         * {
             margin: 0;
@@ -237,6 +242,20 @@
             margin-top: 15px;
         }
 
+        .formula-steps {
+            background: #fff;
+            border: 2px dashed #ced4da;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-top: 20px;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+        .formula-steps h4 { margin-bottom: 10px; color:#495057; }
+        .formula-steps .step { margin-bottom: 10px; }
+        .formula-steps code { background:#f1f3f5; padding:2px 6px; border-radius:6px; }
+        .formula-steps .final { background:#e6fcf5; border-left:4px solid #20c997; padding:10px 12px; border-radius:8px; font-weight:600; }
+
         .detail-info h4 {
             color: #495057;
             margin-bottom: 10px;
@@ -384,6 +403,11 @@
                 <h4>📈 Detay Bilgi:</h4>
                 <div id="detailContent">-</div>
             </div>
+
+            <div class="formula-steps" id="formulaSteps" style="display:none;">
+                <h4>🧪 Adım Adım Hesaplama</h4>
+                <div id="formulaContent"></div>
+            </div>
         </div>
     </div>
 
@@ -513,6 +537,50 @@
                 `;
             }
             document.getElementById('detailContent').innerHTML = detayHTML;
+
+            // Formül adım adım gösterimi
+            const formulaBox = document.getElementById('formulaSteps');
+            const formulaContent = document.getElementById('formulaContent');
+            let html = '';
+            if (currentMode === 'normal') {
+                const W = detaylar.yarimGenislik * 2; // toplam genişlik
+                const D = detaylar.mesafe;
+                const W2 = detaylar.yarimGenislik;
+                const halfRad = (detaylar.yarimAci * Math.PI / 180);
+                html = `
+                    <div class="step"><strong>Verilenler:</strong> Görüş genişliği $W = ${W.toFixed(3)}\,cm$, Mesafe $D = ${D.toFixed(3)}\,cm$</div>
+                    <div class="step">1) Yarı genişlik: $\\frac{W}{2} = \\frac{${W.toFixed(3)}}{2} = ${W2.toFixed(3)}\\,cm$</div>
+                    <div class="step">2) Yarı açı (radyan): $\\theta_{1/2} = \tan^{-1}\\left( \\frac{W/2}{D} \\right) = \\tan^{-1}\\left( \\frac{${W2.toFixed(3)}}{${D.toFixed(3)}} \\right) = ${halfRad.toFixed(5)}\\,rad$</div>
+                    <div class="step">3) Yarı açı (derece): $\\theta_{1/2}^{\\circ} = ${halfRad.toFixed(5)} \\times \\frac{180}{\\pi} = ${detaylar.yarimAci.toFixed(3)}^\\circ$</div>
+                    <div class="step">4) Tam açı: $\\theta = 2 \\times ${detaylar.yarimAci.toFixed(3)}^\\circ = ${tamAciDerece.toFixed(3)}^\\circ$</div>
+                    <div class="final">Sonuç: $\\boxed{\\theta = ${tamAciDerece.toFixed(2)}^\\circ}$</div>
+                `;
+            } else {
+                const P = detaylar.dikMesafe;
+                const G = detaylar.gercekMesafe;
+                const bakisRad = detaylar.bakisAcisi * Math.PI / 180;
+                const Worig = detaylar.originalGenislik;
+                const Wcorr = detaylar.duzeltilmisGenislik;
+                const WcorrHalf = Wcorr / 2;
+                const halfRad = Math.atan( (Wcorr/2) / P );
+                const halfDeg = halfRad * 180 / Math.PI;
+                html = `
+                    <div class="step"><strong>Verilenler:</strong> Dik mesafe $P=${P.toFixed(3)}\,cm$, Gerçek mesafe $G=${G.toFixed(3)}\,cm$, Genişlik $W=${Worig.toFixed(3)}\,cm$</div>
+                    <div class="step">1) Kamera bakış açısı (eğim): $\\varphi = \\cos^{-1}\\left(\\frac{P}{G}\\right) = \\cos^{-1}\\left(\\frac{${P.toFixed(3)}}{${G.toFixed(3)}}\\right) = ${(bakisRad).toFixed(5)}\\,rad = ${detaylar.bakisAcisi.toFixed(3)}^\\circ$</div>
+                    <div class="step">2) Düzeltilmiş genişlik: $W' = W \\cdot \\cos(\\varphi) = ${Worig.toFixed(3)} \\times \\cos(${(bakisRad).toFixed(5)}) = ${Wcorr.toFixed(3)}\\,cm$</div>
+                    <div class="step">3) Yarı düzeltilmiş genişlik: $\\frac{W'}{2} = \\frac{${Wcorr.toFixed(3)}}{2} = ${WcorrHalf.toFixed(3)}\\,cm$</div>
+                    <div class="step">4) Yarı açı (radyan): $\\theta_{1/2} = \\tan^{-1}\\left( \\frac{W'/2}{P} \\right) = \\tan^{-1}\\left( \\frac{${WcorrHalf.toFixed(3)}}{${P.toFixed(3)}} \\right) = ${halfRad.toFixed(5)}\\,rad$</div>
+                    <div class="step">5) Yarı açı (derece): $\\theta_{1/2}^{\\circ} = ${halfRad.toFixed(5)} \\times \\frac{180}{\\pi} = ${halfDeg.toFixed(3)}^\\circ$</div>
+                    <div class="step">6) Tam açı: $\\theta = 2 \\times ${halfDeg.toFixed(3)}^\\circ = ${tamAciDerece.toFixed(3)}^\\circ$</div>
+                    <div class="final">Sonuç: $\\boxed{\\theta = ${tamAciDerece.toFixed(2)}^\\circ}$</div>
+                `;
+            }
+            formulaContent.innerHTML = html;
+            formulaBox.style.display = 'block';
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                // MathJax yeniden işle
+                window.MathJax.typesetPromise([formulaContent]);
+            }
             
             // Durum değerlendirmesi
             const statusElement = document.getElementById('status');
@@ -546,6 +614,8 @@
             document.getElementById('angledForm').reset();
             document.getElementById('results').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
+            const formulaBox = document.getElementById('formulaSteps');
+            if (formulaBox) formulaBox.style.display = 'none';
         }
     </script>
 </body>
