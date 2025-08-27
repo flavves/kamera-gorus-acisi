@@ -287,6 +287,19 @@
             margin-top: 5px;
         }
 
+        .simulation {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        #simulationCanvas {
+            border: 1px solid #dee2e6;
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            margin-top: 15px;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
@@ -408,6 +421,16 @@
                 <h4>🧪 Adım Adım Hesaplama</h4>
                 <div id="formulaContent"></div>
             </div>
+        </div>
+
+        <div class="simulation">
+            <h2>🧱 Duvar Mesafe Simülasyonu</h2>
+            <div class="input-group">
+                <label for="distanceInput">📏 Duvara olan mesafe (cm):</label>
+                <input type="number" id="distanceInput" step="0.1" placeholder="Örnek: 500">
+                <button type="button" class="btn" onclick="addMeasurement()">Ekle</button>
+            </div>
+            <canvas id="simulationCanvas" width="600" height="200"></canvas>
         </div>
     </div>
 
@@ -617,6 +640,67 @@
             const formulaBox = document.getElementById('formulaSteps');
             if (formulaBox) formulaBox.style.display = 'none';
         }
+
+        // ---- Duvar Mesafe Simülasyonu ----
+        const measurements = [];
+        const vehicleHeight = 180; // cm
+        const cameraHeight = 150;  // yaklaşık kamera yüksekliği (cm)
+
+        function addMeasurement() {
+            const input = document.getElementById('distanceInput');
+            const dist = parseFloat(input.value);
+            if (isNaN(dist) || dist <= 0) return;
+            measurements.push(dist);
+            input.value = '';
+            drawSimulation();
+        }
+
+        function drawSimulation() {
+            const canvas = document.getElementById('simulationCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            const margin = 20;
+            const vehicleWidth = 400; // cm
+            const maxDist = Math.max(...measurements, 500);
+            const scaleX = (width - 2 * margin) / (vehicleWidth + maxDist);
+            const scaleY = (height - 2 * margin) / vehicleHeight;
+
+            const vehiclePxWidth = vehicleWidth * scaleX;
+            const vehiclePxHeight = vehicleHeight * scaleY;
+
+            // Araç çizimi
+            ctx.fillStyle = '#6c757d';
+            ctx.fillRect(margin, height - vehiclePxHeight - margin, vehiclePxWidth, vehiclePxHeight);
+
+            // Kamera konumu
+            const camX = margin + vehiclePxWidth;
+            const camY = height - margin - cameraHeight * scaleY;
+            ctx.fillStyle = '#e63946';
+            ctx.beginPath();
+            ctx.arc(camX, camY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ölçümler
+            ctx.strokeStyle = '#343a40';
+            ctx.fillStyle = '#1d3557';
+            measurements.forEach(d => {
+                const x = camX + d * scaleX;
+                ctx.beginPath();
+                ctx.moveTo(x, margin);
+                ctx.lineTo(x, height - margin);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(x, camY, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        drawSimulation();
     </script>
 </body>
 </html>
