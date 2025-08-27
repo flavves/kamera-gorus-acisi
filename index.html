@@ -9,8 +9,6 @@
         window.MathJax = { tex: {inlineMath: [['$','$'], ['\\(','\\)']]}, svg: {fontCache: 'global'} };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
         * {
             margin: 0;
@@ -329,8 +327,8 @@
         <div class="subtitle">Dik ve çapraz bakış açılarını hassas bir şekilde ölçün</div>
         
         <div class="mode-selector">
-            <button class="mode-btn active" onclick="switchMode('normal')">📐 Dik Bakış</button>
-            <button class="mode-btn" onclick="switchMode('angled')">📏 Çapraz Bakış</button>
+            <button class="mode-btn active" id="normalModeBtn">📐 Dik Bakış</button>
+            <button class="mode-btn" id="angledModeBtn">📏 Çapraz Bakış</button>
         </div>
 
         <!-- Normal (Dik) Mod -->
@@ -394,7 +392,7 @@
             </form>
         </div>
 
-        <button type="button" class="btn reset-btn" onclick="resetForm()">🔄 Temizle</button>
+        <button type="button" class="btn reset-btn" id="resetBtn">🔄 Temizle</button>
 
         <div class="error" id="errorMessage"></div>
 
@@ -430,29 +428,37 @@
             <div class="input-group">
                 <label for="distanceInput">📏 Duvara olan mesafe (cm):</label>
                 <input type="number" id="distanceInput" step="0.1" placeholder="Örnek: 500">
-                <button type="button" class="btn" onclick="addMeasurement()">Ekle</button>
+                <button type="button" class="btn" id="addMeasurementBtn">Ekle</button>
             </div>
             <div id="simulation3d" style="width:600px; height:400px;"></div>
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
+
         let currentMode = 'normal';
 
-        function switchMode(mode) {
+        function switchMode(mode, evt) {
             currentMode = mode;
-            
+
             // Butonları güncelle
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            }
+
             // Bölümleri göster/gizle
             document.querySelectorAll('.input-section').forEach(section => section.classList.remove('active'));
             document.getElementById(mode + '-section').classList.add('active');
-            
+
             // Sonuçları temizle
             resetForm();
         }
+
+        document.getElementById('normalModeBtn').addEventListener('click', e => switchMode('normal', e));
+        document.getElementById('angledModeBtn').addEventListener('click', e => switchMode('angled', e));
 
         document.getElementById('normalForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -463,6 +469,8 @@
             e.preventDefault();
             hesaplaCaprazAci();
         });
+
+        document.getElementById('resetBtn').addEventListener('click', resetForm);
 
         function hesaplaNormalAci() {
             document.getElementById('errorMessage').style.display = 'none';
@@ -672,7 +680,7 @@
             scene.add(ground);
 
             // Araç modeli
-            const loader = new THREE.GLTFLoader();
+            const loader = new GLTFLoader();
             loader.load('models/m113a1.glb', gltf => {
                 const model = gltf.scene;
                 model.scale.set(0.01, 0.01, 0.01);
@@ -693,6 +701,11 @@
         }
 
         function addMeasurement() {
+            if (!wall) {
+                console.warn('Wall not initialized yet');
+                return;
+            }
+
             const input = document.getElementById('distanceInput');
             const dist = parseFloat(input.value);
             if (isNaN(dist) || dist <= 0) return;
@@ -710,6 +723,8 @@
 
             input.value = '';
         }
+
+        document.getElementById('addMeasurementBtn').addEventListener('click', addMeasurement);
 
         init3DSimulation();
     </script>
